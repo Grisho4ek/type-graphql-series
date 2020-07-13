@@ -12,11 +12,22 @@ import { LoginResolver } from './modules/user/Login';
 import { RegisterResolver } from './modules/user/Register';
 
 const main = async () => {
-  await createConnection();
+  let retries = 5;
+  while (retries) {
+    try {
+      await createConnection();
+      break;
+    } catch (err) {
+      console.log(err);
+      retries--;
+      console.log(`${retries} retries left`);
+    }
+  }
 
   const schema = await buildSchema({
     resolvers: [MeResolver, LoginResolver, RegisterResolver],
     authChecker: ({ context: { req } }) => {
+      console.log(req);
       return !!req.session.userId;
     }
   });
@@ -28,7 +39,18 @@ const main = async () => {
 
   const app = express();
 
-  const RedisStore = connectRedis(session);
+  let RedisStore: any;
+  let redisRetries = 5;
+  while (redisRetries) {
+    try {
+      RedisStore = connectRedis(session);
+      break;
+    } catch (err) {
+      console.log(err);
+      redisRetries--;
+      console.log(`${redisRetries} redis retries left`);
+    }
+  }
 
   app.use(
     cors({
