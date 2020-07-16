@@ -7,10 +7,6 @@ import session from 'express-session';
 import { createConnection } from 'typeorm';
 import { redis } from './redis';
 import { buildSchema } from 'type-graphql';
-import { MeResolver } from './modules/user/Me';
-import { LoginResolver } from './modules/user/Login';
-import { RegisterResolver } from './modules/user/Register';
-import { ConfirmResolver } from './modules/user/ConfirmUser';
 
 const main = async () => {
   let retries = 5;
@@ -26,7 +22,7 @@ const main = async () => {
   }
 
   const schema = await buildSchema({
-    resolvers: [MeResolver, LoginResolver, RegisterResolver, ConfirmResolver]
+    resolvers: [__dirname + '/modules/**/*.ts']
   });
 
   const apolloServer = new ApolloServer({
